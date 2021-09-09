@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MoviesAppTask</string>
+    <string name="some_error_happened">Some error happened</string>
+    <string name="loading">Loading…</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="validate">Validate</string>
+    <string name="no_address_found">No address found</string>
+    <string name="user_rate">User rate : </string>
+    <string name="release_date">Release date : </string>
+</resources>

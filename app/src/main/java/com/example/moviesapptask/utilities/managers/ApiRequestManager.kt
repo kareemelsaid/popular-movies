@@ -2,6 +2,7 @@ package com.example.moviesapptask.utilities.managers
 
 import android.content.res.Resources
 import android.util.Log
+import com.example.moviesapptask.di.AppDispatcher
 import com.google.gson.Gson
 import com.example.moviesapptask.models.response.Message
 import com.example.moviesapptask.utilities.ResponseResult
@@ -18,7 +19,7 @@ interface ApiRequestManagerInterface {
     ): Job
 }
 
-class ApiRequestManager(private val resources: Resources) : ApiRequestManagerInterface {
+class ApiRequestManager(private val resources: Resources ,  private val appDispatcher: AppDispatcher) : ApiRequestManagerInterface {
 
     override fun <T : Any> execute(
         request: suspend () -> Response<T>,
@@ -26,12 +27,12 @@ class ApiRequestManager(private val resources: Resources) : ApiRequestManagerInt
         onFailure: ((Message,Int) -> Unit)?,
         finally: (() -> Unit)?
     ): Job {
-        return CoroutineScope(Dispatchers.IO).launch {
+        return CoroutineScope(appDispatcher.io()).launch {
             try {
                 val response = request.invoke()
                 val result = verifyResponse(response)
 
-                withContext(Dispatchers.Main) {
+                withContext(appDispatcher.main()) {
                     when (result) {
                         is ResponseResult.Success -> onSuccess?.invoke(result.data, response.headers(),response.code())
                         is ResponseResult.Failure -> onFailure?.invoke(result.message,response.code())
@@ -39,11 +40,11 @@ class ApiRequestManager(private val resources: Resources) : ApiRequestManagerInt
                 }
             } catch (e: Exception) {
                 Log.e("hhh", e.message!!)
-                withContext(Dispatchers.Main) {
+                withContext(appDispatcher.main()) {
                     onFailure?.invoke(Message("Some error happened"),0)
                 }
             } finally {
-                withContext(Dispatchers.Main) {
+                withContext(appDispatcher.main()) {
                     finally?.invoke()
                 }
             }

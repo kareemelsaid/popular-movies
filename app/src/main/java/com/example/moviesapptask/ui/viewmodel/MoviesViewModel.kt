@@ -10,7 +10,6 @@ import com.example.moviesapptask.repos.HomeRepoInterface
 import com.example.moviesapptask.utilities.ViewState
 import com.example.moviesapptask.utilities.managers.ApiRequestManagerInterface
 import com.example.moviesapptask.utilities.managers.InternetConnectionManagerInterface
-import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 class MoviesViewModel @Inject constructor(
@@ -19,7 +18,7 @@ class MoviesViewModel @Inject constructor(
     private val homeRepoInterface: HomeRepoInterface,
     private val resources: Resources,
 ) : ViewModel() {
-    val setDataViewState = MutableLiveData<ViewState<ArrayList<SetDataViewModel>>>(ViewState.Loading)
+    val setDataViewState = MutableLiveData<ViewState<ArrayList<SetDataViewModel>>>()
     val totalPages = MutableLiveData<Int>()
 
 
@@ -34,12 +33,15 @@ class MoviesViewModel @Inject constructor(
                 },
                 onSuccess = { data, headers, statusCode ->
                     totalPages.value = data.total_pages
-                    setDataViewState.value =
-                        ViewState.Success(ArrayList(data.results.map {
-                            SetDataViewModel(it)
-                        }))
-
-
+                    if (data.results.isNotEmpty()) {
+                        setDataViewState.value =
+                            ViewState.Success(ArrayList(data.results.map {
+                                SetDataViewModel(it)
+                            }))
+                    }
+                    else {
+                        setDataViewState.value = ViewState.Error(Message(""))
+                    }
                 },
                 onFailure = { message, statusCode ->
                     setDataViewState.value = ViewState.Error(message)

@@ -32,8 +32,14 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideApiRequestManager(resources: Resources): ApiRequestManagerInterface {
-        return ApiRequestManager(resources)
+    fun provideAppDispatchers() = object :AppDispatcher{
+
+    }
+
+    @Provides
+    @Singleton
+    fun provideApiRequestManager(resources: Resources,appDispatcher: AppDispatcher): ApiRequestManagerInterface {
+        return ApiRequestManager(resources,appDispatcher)
     }
 
     @Provides
